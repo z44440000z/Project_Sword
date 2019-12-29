@@ -180,16 +180,16 @@ ModelImporter:
       name: landing
       takeName: Take 001
       firstFrame: 0
-      lastFrame: 100
+      lastFrame: 63
       wrapMode: 0
       orientationOffsetY: 0
-      level: 0
+      level: -2
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
+      loopBlendOrientation: 1
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
