@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour
 
     public PlayerController player;
     public float groundOffest = 3.46f;
+    public float heightDecrease = 0.3f;
     
     private void Awake()
     {
@@ -15,6 +16,6 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        transform.position = new Vector3(transform.position.x, player.transform.position.y+groundOffest-player.sensor.height/2 , transform.position.z);
+        transform.position = new Vector3(transform.position.x, player.transform.position.y+groundOffest-player.sensor.height * heightDecrease , transform.position.z);
     }
 }
