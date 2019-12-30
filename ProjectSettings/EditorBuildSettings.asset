@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/try_efffect.unity
+    guid: 3abb307b4fae48b4f87c62c04dae17f7
   m_configObjects: {}

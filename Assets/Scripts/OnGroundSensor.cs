@@ -5,7 +5,7 @@ using UnityEngine;
 public class OnGroundSensor : MonoBehaviour {
     public float height;
 	// Update is called once per frame
-	void FixedUpdate () {
+	void Update () {
         height=GetGroundDistance();
     }
     public float GetGroundDistance(){//取得玩家與下方地面的距離

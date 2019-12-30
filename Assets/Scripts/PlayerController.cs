@@ -11,9 +11,14 @@ public class PlayerController : MonoBehaviour
     [Header("Physics Setting")]
     public float jumpSpeed=5f;
     public float gravitySpeed=3f;
+    public float velocity;
     private Rigidbody rb;
     [Header("Camera Setting")]
     public OnGroundSensor sensor;
+    [Header("Attack Setting")]
+    public Atkzone atkzone;
+    public ObstacleType atkType = ObstacleType.none;
+
     
     // Start is called before the first frame update
     void Start()
@@ -24,9 +29,12 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        velocity=rb.velocity.y;
         anim.SetFloat("height",sensor.height);
         if(rb.velocity.y<0)
             anim.SetBool("isFall",true);
+        else if(sensor.height<=0.1f)
+            anim.SetBool("isFall", true);
         else
             anim.SetBool("isFall",false);
         if (Input.GetMouseButton(0) && !isjump)
@@ -80,15 +88,28 @@ public class PlayerController : MonoBehaviour
     public void LeftAttackButton(){
         anim.SetBool("isLeft",true);
         anim.SetTrigger("attack");
+        atkType = ObstacleType.Left;
     }
     public void RightAttackButton(){
         anim.SetBool("isLeft",false);
         anim.SetTrigger("attack");
+        atkType = ObstacleType.Right;
+
     }
     public void OnIdleUpdate() {
         anim.SetLayerWeight(anim.GetLayerIndex("attack"), Mathf.Lerp(anim.GetLayerWeight(anim.GetLayerIndex("attack")), 0f, .2f));
     }
     public void OnAttackUpdate() {
         anim.SetLayerWeight(anim.GetLayerIndex("attack"), Mathf.Lerp(anim.GetLayerWeight(anim.GetLayerIndex("attack")), 1f, 1f));
+    }
+
+    public void OnAttack()
+    {
+        if (atkType == atkzone.type && atkType != ObstacleType.none)
+        {
+            Destroy(atkzone.Obstacle.gameObject);
+        }
+        else
+        { }
     }
 }
