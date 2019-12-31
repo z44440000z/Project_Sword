@@ -1,35 +1,42 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
-    public Animator anim;
-    public bool isjump;
-    private Vector2 lastTapPos;
+    [Header("Game Value")]
+    public int life=3;
+    public int combo=0;
+    private float score;
     
-    [Header("Physics Setting")]
+    [Header("Value Setting")]
+    public float baseScore = 10f;
+    public Animator anim;
+    private Vector2 lastTapPos;
     public float jumpSpeed=5f;
     public float gravitySpeed=3f;
-    public float velocity;
     private Rigidbody rb;
-    [Header("Camera Setting")]
     public OnGroundSensor sensor;
+    [Header("State Setting")]
+    public bool isjump;
+    public bool isdead;
     [Header("Attack Setting")]
     public Atkzone atkzone;
     public ObstacleType atkType = ObstacleType.none;
-
-    
+    [Header("UI Setting")]
+    public Transform comboCanvas;
+    public Text scoreText;
+    public Image[] lifesImg;
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        scoreText.text = Mathf.Round(score).ToString();
     }
 
     // Update is called once per frame
     void Update()
     {
-        velocity=rb.velocity.y;
         anim.SetFloat("height",sensor.height);
         if(rb.velocity.y<0)
             anim.SetBool("isFall",true);
@@ -37,9 +44,11 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isFall", true);
         else
             anim.SetBool("isFall",false);
+        rb.AddForce(Physics.gravity.y * Vector3.up * gravitySpeed, ForceMode.Acceleration); 
+        if(isdead)
+            return;
         if (Input.GetMouseButton(0) && !isjump)
         {
-
             Vector2 curTapPos = Input.mousePosition;
 
             if (lastTapPos == Vector2.zero)
@@ -67,7 +76,6 @@ public class PlayerController : MonoBehaviour
                 anim.SetTrigger("jump");
             }
         }
-        rb.AddForce(Physics.gravity.y * Vector3.up * gravitySpeed, ForceMode.Acceleration); 
     }
     private void OnCollisionEnter(Collision other)
     {
@@ -76,6 +84,21 @@ public class PlayerController : MonoBehaviour
         {
             isjump=false;
             rb.velocity = Vector3.zero; // Remove velocity to not make the ball jump higher after falling done a greater distance
+        }
+        if(other.transform.tag == "A" || other.transform.tag == "B"){
+            if(!isjump){
+                if(life>0){
+                    life--;
+                    combo = 0;
+                    lifesImg[life].enabled =false;
+                }
+                else{
+                    if(!isdead){
+                        isdead=true;
+                        anim.SetTrigger("die");
+                    }
+                }
+            }
         }
     }
     public void Jump()
@@ -86,11 +109,15 @@ public class PlayerController : MonoBehaviour
         rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
     }
     public void LeftAttackButton(){
+        if(isdead)
+            return;
         anim.SetBool("isLeft",true);
         anim.SetTrigger("attack");
         atkType = ObstacleType.Left;
     }
     public void RightAttackButton(){
+        if(isdead)
+            return;
         anim.SetBool("isLeft",false);
         anim.SetTrigger("attack");
         atkType = ObstacleType.Right;
@@ -107,6 +134,10 @@ public class PlayerController : MonoBehaviour
     {
         if (atkType == atkzone.type && atkType != ObstacleType.none)
         {
+            combo++;
+            FloatingTextController.CreateFloatingText(combo.ToString(),comboCanvas);
+            score += baseScore*(1+(combo*0.1f));
+            scoreText.text = Mathf.Round(score).ToString();
             Destroy(atkzone.Obstacle.gameObject);
         }
         else

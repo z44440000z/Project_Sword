@@ -4,7 +4,6 @@ using UnityEngine;
 public enum ObstacleType { Left, Right, none }
 public class Atkzone : MonoBehaviour
 {
-    
     public ObstacleType type;
     public Collider Obstacle;
     // Start is called before the first frame update
@@ -19,13 +18,7 @@ public class Atkzone : MonoBehaviour
         if( Obstacle == null)
         {type = ObstacleType.none;}
     }
-
-    public /// <summary>
-           /// OnTriggerStay is called once per frame for every Collider other
-           /// that is touching the trigger.
-           /// </summary>
-           /// <param name="other">The other Collider involved in this collision.</param>
-    void OnTriggerStay(Collider other)
+    public void OnTriggerStay(Collider other)
     {
         if (other.tag == "A")
         {

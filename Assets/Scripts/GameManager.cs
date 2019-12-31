@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
             { Instantiate(B, transform.position + new Vector3(0, i * 3, 0), transform.rotation); }
 
         }
+        FloatingTextController.Initialize();
     }
 
     // Update is called once per frame
