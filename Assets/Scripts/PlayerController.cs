@@ -7,8 +7,8 @@ public class PlayerController : MonoBehaviour
     [Header("Game Value")]
     public int life=3;
     public int combo=0;
-    private float score;
-    
+    public float score;
+    public int bestCombo;
     [Header("Value Setting")]
     public float baseScore = 10f;
     public Animator anim;
@@ -27,11 +27,16 @@ public class PlayerController : MonoBehaviour
     public Transform comboCanvas;
     public Text scoreText;
     public Image[] lifesImg;
+    public GameObject ResultPanel;
+    public Text bestComboText;
+    public Text resultScoreText;
+    
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         scoreText.text = Mathf.Round(score).ToString();
+        ResultPanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -96,6 +101,10 @@ public class PlayerController : MonoBehaviour
                     if(!isdead){
                         isdead=true;
                         anim.SetTrigger("die");
+                        ResultPanel.SetActive(true);
+                        bestComboText.text = bestCombo.ToString();
+                        resultScoreText.text = scoreText.text;
+                        scoreText.gameObject.SetActive(false);
                     }
                 }
             }
@@ -136,6 +145,10 @@ public class PlayerController : MonoBehaviour
         {
             combo++;
             FloatingTextController.CreateFloatingText(combo.ToString(),comboCanvas);
+            if (combo > bestCombo)
+            {
+                bestCombo = combo;
+            }
             score += baseScore*(1+(combo*0.1f));
             scoreText.text = Mathf.Round(score).ToString();
             Destroy(atkzone.Obstacle.gameObject);
