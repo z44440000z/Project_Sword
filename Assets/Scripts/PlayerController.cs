@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     [Header("Game Value")]
     public int life=3;
     public int combo=0;
-    public float score;
+    private float score;
     public int bestCombo;
     [Header("Value Setting")]
     public float baseScore = 10f;
@@ -30,18 +30,27 @@ public class PlayerController : MonoBehaviour
     public GameObject ResultPanel;
     public Text bestComboText;
     public Text resultScoreText;
-    
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        scoreText.text = Mathf.Round(score).ToString();
         ResultPanel.SetActive(false);
+        scoreText.text = Mathf.Round(score).ToString();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(life<=0)
+        {
+             isdead=true;
+            anim.SetTrigger("die");
+            ResultPanel.SetActive(true);
+            bestComboText.text = bestCombo.ToString();
+            resultScoreText.text = scoreText.text;
+            scoreText.gameObject.SetActive(false);
+        }
         anim.SetFloat("height",sensor.height);
         if(rb.velocity.y<0)
             anim.SetBool("isFall",true);
@@ -49,7 +58,6 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isFall", true);
         else
             anim.SetBool("isFall",false);
-        rb.AddForce(Physics.gravity.y * Vector3.up * gravitySpeed, ForceMode.Acceleration); 
         if(isdead)
             return;
         if (Input.GetMouseButton(0) && !isjump)
@@ -78,6 +86,7 @@ public class PlayerController : MonoBehaviour
             if(hit.collider.tag == "Player" && !isjump){
                 Debug.DrawLine(Camera.main.transform.position, hit.transform.position, Color.red, 0.1f, true);
                 Debug.Log(hit.transform.name);
+                rb.AddForce( Vector3.up * gravitySpeed, ForceMode.Acceleration);
                 anim.SetTrigger("jump");
             }
         }
@@ -98,14 +107,7 @@ public class PlayerController : MonoBehaviour
                     lifesImg[life].enabled =false;
                 }
                 else{
-                    if(!isdead){
-                        isdead=true;
-                        anim.SetTrigger("die");
-                        ResultPanel.SetActive(true);
-                        bestComboText.text = bestCombo.ToString();
-                        resultScoreText.text = scoreText.text;
-                        scoreText.gameObject.SetActive(false);
-                    }
+                    
                 }
             }
         }
@@ -151,6 +153,7 @@ public class PlayerController : MonoBehaviour
             }
             score += baseScore*(1+(combo*0.1f));
             scoreText.text = Mathf.Round(score).ToString();
+            GameManager.Instance.brokeCount++;
             Destroy(atkzone.Obstacle.gameObject);
         }
         else
