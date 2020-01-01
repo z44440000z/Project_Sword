@@ -35,6 +35,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // 防止裝置睡眠
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
         CreatObstacle();
         FloatingTextController.Initialize();
     }
