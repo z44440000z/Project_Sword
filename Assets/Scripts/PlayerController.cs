@@ -44,12 +44,13 @@ public class PlayerController : MonoBehaviour
     {
         if(life<=0)
         {
-             isdead=true;
+            isdead = true;
             anim.SetTrigger("die");
             ResultPanel.SetActive(true);
             bestComboText.text = bestCombo.ToString();
             resultScoreText.text = scoreText.text;
             scoreText.gameObject.SetActive(false);
+            GameManager.Instance.audiosource.Stop();
         }
         anim.SetFloat("height",sensor.height);
         if(rb.velocity.y<0)

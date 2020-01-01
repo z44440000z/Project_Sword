@@ -11,9 +11,10 @@ public class GameManager : MonoBehaviour
 
     public int StartCount = 5;
     public int brokeCount = 0;
-
     public int Wave = 0;
     public float WaitTime = 3;
+
+    public AudioSource audiosource;
 
     private void OnEnable()
     {
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        audiosource = GetComponent<AudioSource>();
         // 防止裝置睡眠
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
