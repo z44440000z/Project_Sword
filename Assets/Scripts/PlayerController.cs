@@ -5,16 +5,16 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Game Value")]
-    public int life=3;
-    public int combo=0;
+    public int life = 3;
+    public int combo = 0;
     private float score;
     public int bestCombo;
     [Header("Value Setting")]
     public float baseScore = 10f;
     public Animator anim;
     private Vector2 lastTapPos;
-    public float jumpSpeed=5f;
-    public float gravitySpeed=3f;
+    public float jumpSpeed = 5f;
+    public float gravitySpeed = 3f;
     private Rigidbody rb;
     public OnGroundSensor sensor;
     [Header("State Setting")]
@@ -42,7 +42,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(life<=0)
+        //死亡
+        if (isdead)
+        { return; }
+        if (life <= 0)
         {
             isdead = true;
             anim.SetTrigger("die");
@@ -51,16 +54,18 @@ public class PlayerController : MonoBehaviour
             resultScoreText.text = scoreText.text;
             scoreText.gameObject.SetActive(false);
             GameManager.Instance.audiosource.Stop();
+            SaveSystem.Save(new SaveData(score, bestCombo));
         }
-        anim.SetFloat("height",sensor.height);
-        if(rb.velocity.y<0)
-            anim.SetBool("isFall",true);
-        else if(sensor.height<=0.1f)
+
+        //落下動作
+        anim.SetFloat("height", sensor.height);
+        if (rb.velocity.y < 0)
+            anim.SetBool("isFall", true);
+        else if (sensor.height <= 0.1f)
             anim.SetBool("isFall", true);
         else
-            anim.SetBool("isFall",false);
-        if(isdead)
-            return;
+            anim.SetBool("isFall", false);
+        //左右走
         if (Input.GetMouseButton(0) && !isjump)
         {
             Vector2 curTapPos = Input.mousePosition;
@@ -72,47 +77,55 @@ public class PlayerController : MonoBehaviour
             lastTapPos = curTapPos;
 
             rb.AddForce(Vector3.left * delta);
-            anim.SetFloat("left",Mathf.Clamp(delta,-1f,1f));
+            anim.SetFloat("left", Mathf.Clamp(delta, -1f, 1f));
         }
-
+        //停止走動
         if (Input.GetMouseButtonUp(0))
         {
             lastTapPos = Vector2.zero;
-            anim.SetFloat("left",0f);
+            anim.SetFloat("left", 0f);
         }
+        //跳躍
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out hit))
         {
-            if(hit.collider.tag == "Player" && !isjump){
+            if (hit.collider.tag == "Player" && !isjump)
+            {
                 Debug.DrawLine(Camera.main.transform.position, hit.transform.position, Color.red, 0.1f, true);
                 Debug.Log(hit.transform.name);
-                rb.AddForce( Vector3.up * gravitySpeed, ForceMode.Acceleration);
                 anim.SetTrigger("jump");
             }
         }
     }
     private void OnCollisionEnter(Collision other)
     {
-
+        //落地
         if (other.transform.tag == "Ground")
         {
-            isjump=false;
+            isjump = false;
             rb.velocity = Vector3.zero; // Remove velocity to not make the ball jump higher after falling done a greater distance
+            //Combo被斷
+            if (GameManager.Instance.IfCubeExist())
+            { combo = 0; }
         }
-        if(other.transform.tag == "A" || other.transform.tag == "B"){
-            if(!isjump){
-                if(life>0){
+        //損失生命
+        if (other.transform.tag == "A" || other.transform.tag == "B")
+        {
+            if (!isjump)
+            {
+                if (life > 0)
+                {
                     life--;
                     combo = 0;
-                    lifesImg[life].enabled =false;
+                    lifesImg[life].enabled = false;
                 }
-                else{
-                    
-                }
+                else
+                { }
             }
         }
     }
+    //動畫事件-跳躍
     public void Jump()
     {
         isjump = true;
@@ -120,41 +133,60 @@ public class PlayerController : MonoBehaviour
         //rb.velocity = newV * Mathf.Abs(speed);
         rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
     }
-    public void LeftAttackButton(){
-        if(isdead)
+    //延長滯空的跳躍
+    public void Jump(float speed)
+    {
+        isjump = true;
+        rb.AddForce(Vector3.up * speed, ForceMode.Impulse);
+    }
+    //左邊的攻擊按鈕
+    public void LeftAttackButton()
+    {
+        if (isdead)
             return;
-        anim.SetBool("isLeft",true);
+        anim.SetBool("isLeft", true);
         anim.SetTrigger("attack");
         atkType = ObstacleType.Left;
     }
-    public void RightAttackButton(){
-        if(isdead)
+    //右邊的攻擊按鈕
+    public void RightAttackButton()
+    {
+        if (isdead)
             return;
-        anim.SetBool("isLeft",false);
+        anim.SetBool("isLeft", false);
         anim.SetTrigger("attack");
         atkType = ObstacleType.Right;
 
     }
-    public void OnIdleUpdate() {
+    public void OnIdleUpdate()
+    {
         anim.SetLayerWeight(anim.GetLayerIndex("attack"), Mathf.Lerp(anim.GetLayerWeight(anim.GetLayerIndex("attack")), 0f, .2f));
     }
-    public void OnAttackUpdate() {
+    public void OnAttackUpdate()
+    {
         anim.SetLayerWeight(anim.GetLayerIndex("attack"), Mathf.Lerp(anim.GetLayerWeight(anim.GetLayerIndex("attack")), 1f, 1f));
     }
-
+    //動畫事件-攻擊
     public void OnAttack()
     {
         if (atkType == atkzone.type && atkType != ObstacleType.none)
         {
+            //Combo增加
             combo++;
-            FloatingTextController.CreateFloatingText(combo.ToString(),comboCanvas);
+            //顯示Combo數
+            FloatingTextController.CreateFloatingText(combo.ToString(), comboCanvas);
+            //比較BestCombo，大於則進行替代
             if (combo > bestCombo)
-            {
-                bestCombo = combo;
-            }
-            score += baseScore*(1+(combo*0.1f));
+            { bestCombo = combo; }
+            //加分數
+            score += baseScore * (1 + (combo * 0.1f));
             scoreText.text = Mathf.Round(score).ToString();
+            //確認場上尚存的方塊數
             GameManager.Instance.brokeCount++;
+            //滯空
+            if (isjump)
+            { Jump(10); }
+            //破壞方塊
             Destroy(atkzone.Obstacle.gameObject);
         }
         else
