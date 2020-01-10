@@ -27,15 +27,12 @@ public class PlayerController : MonoBehaviour
     public Transform comboCanvas;
     public Text scoreText;
     public Image[] lifesImg;
-    public GameObject ResultPanel;
-    public Text bestComboText;
-    public Text resultScoreText;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        ResultPanel.SetActive(false);
+        Teach.Instance.ResultPanel.SetActive(false);
         scoreText.text = Mathf.Round(score).ToString();
     }
 
@@ -49,12 +46,12 @@ public class PlayerController : MonoBehaviour
         {
             isdead = true;
             anim.SetTrigger("die");
-            ResultPanel.SetActive(true);
-            bestComboText.text = bestCombo.ToString();
-            resultScoreText.text = scoreText.text;
+            SaveSystem.Save(SaveSystem.Compare(new SaveData(score, bestCombo)));
+            Teach.Instance.ResultPanel.SetActive(true);
+            Teach.Instance.bestcombo.text = bestCombo.ToString();
+            Teach.Instance.score.text = scoreText.text;
             scoreText.gameObject.SetActive(false);
             GameManager.Instance.audiosource.Stop();
-            SaveSystem.Save(new SaveData(score, bestCombo));
         }
 
         //落下動作

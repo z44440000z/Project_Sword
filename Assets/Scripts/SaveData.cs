@@ -19,6 +19,22 @@ public static class SaveSystem
         return data;
     }
 
+    public static SaveData Compare(SaveData data)
+    {
+        SaveData newData = new SaveData(0, 0);
+        //用較高的分數替代
+        if (data.score > PlayerPrefs.GetFloat("Score"))
+        { newData.score = data.score; }
+        else
+        { newData.score = PlayerPrefs.GetFloat("Score"); }
+        //用較高的Combo數替代
+        if (data.bestCombo > PlayerPrefs.GetInt("BestCombo"))
+        { newData.bestCombo = data.bestCombo; }
+        else
+        { newData.bestCombo = PlayerPrefs.GetInt("BestCombo"); }
+        return newData;
+    }
+
 }
 [System.Serializable]
 public class SaveData

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -14,8 +13,7 @@ public class GameManager : MonoBehaviour
     public int brokeCount = 0;
     public int Wave = 0;
     public float WaitTime = 3;
-    [Header("Exit Panel")]
-    public GameObject ExitPanel;
+
     [Header("Audio")]
     public AudioSource audiosource;
 
@@ -50,16 +48,11 @@ public class GameManager : MonoBehaviour
         //初始化方塊
         CreatObstacle();
         FloatingTextController.Initialize();
-        ExitPanel.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        // 按下返回按鍵後, 關閉 APP
-        if (Input.GetKeyDown(KeyCode.Escape))
-        { ExitPanel.SetActive(true); }
-
         //生成下一波方塊
         if (brokeCount == StartCount && !player.isjump)
         {
@@ -88,13 +81,7 @@ public class GameManager : MonoBehaviour
 
         }
     }
-    //按鈕事件-重新開始
-    public void RestartButton()
-    { SceneManager.LoadScene(1); }
-    public void YesButton()
-    { SceneManager.LoadScene(0); }
-    public void NoButton()
-    { ExitPanel.SetActive(false); }
+
     //確認本波方塊已全部清除
     public bool IfCubeExist()
     { return brokeCount != StartCount; }
